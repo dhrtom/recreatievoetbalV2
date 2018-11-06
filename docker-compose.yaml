@@ -7,7 +7,7 @@ web:
     - 5000:80
   expose:
     - "5000"
-  image: recreatieweb
+  image: recreatievoetbalv2.web:latest
   restart: always
 
 api:
@@ -19,5 +19,5 @@ api:
     - 5000:80
   expose:
     - "5001"
-  image: recreatieapi
+  image: recreatievoetbalv2.api:latest
   restart: always
