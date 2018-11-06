@@ -1,17 +1,17 @@
-var CACHE_NAME = 'v6';
+var CACHE_NAME = 'v11';
 var resTrack = new Map();
 
 var urlsToCache = [
     '/',
     '/Home/Fallback',
-'/dist/app.bundle.js',
-'/dist/vendor.bundle.js',
-'/dist/vendor.css'
+    '/dist/app.bundle.js',
+    '/dist/vendor.bundle.js',
+    '/dist/vendor.css'
 ];
 
 
 var ignoreRequests = new RegExp('(' + [
-    '/Home/TriggerPush'].join('(\/?)|\\') + ')$')
+    '/Home/TriggerPush'].join('(\/?)|\\') + ')$');
 
 
 // Install
@@ -23,15 +23,33 @@ this.addEventListener('install', function(event) {
   );
 });
 
+// activate
+self.addEventListener('activate', event => {
+    console.log('Activating new service worker...');
+
+    const cacheWhitelist = [CACHE_NAME];
+
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
+    );
+});
+
 // Fetch
 this.addEventListener('fetch', function (event) {
 
     if (ignoreRequests.test(event.request.url)) {
-        console.log('ignored: ', event.request.url)
+        console.log('ignored: ', event.request.url);
         // request will be networked
         return
     }
-
 
     event.respondWith(retrieveFromCache(event));
 });
@@ -43,32 +61,32 @@ function retrieveFromCache(event) {
     return caches.open(CACHE_NAME).then(function (cache) {
 
         return cache.match(event.request).then(function (response) {
-           if (response) {
+            if (response) {
                 return response;
             }
 
-        if(navigator.onLine){
-            var fetchRequest = event.request.clone();
-            return fetch(fetchRequest).then(
-                function (response) {
-                    if (!response || response.status !== 200 || response.type !== 'basic') {
+            if (navigator.onLine) {
+                var fetchRequest = event.request.clone();
+                return fetch(fetchRequest).then(
+                    function (response) {
+                        if (!response || response.status !== 200 || response.type !== 'basic') {
+                            return response;
+                        }
+
+                        var responseToCache = response.clone();
+                        cache.put(event.request, responseToCache);
+                        resTrack.set(event.request.url, new Date().getTime());
                         return response;
-                    }
+                    });
+            } else {
+                sendNotification("You are offline, you will be redirected to home page.");
+                fallback = self.location.origin + '/Home/Fallback';
+                return caches.match(fallback);
 
-                    var responseToCache = response.clone();
-                    cache.put(event.request, responseToCache);
-                    resTrack.set(event.request.url, new Date().getTime());
-                    return response;
-            });
-        }else{
-            sendNotification("You are offline, you will be redirected to home page.");
-            fallback = self.location.origin + '/Home/Fallback';
-            return caches.match(fallback); 
-
-        }
-     })
-  })
-}
+            }
+        })
+    })
+};
 
 
 // Activate

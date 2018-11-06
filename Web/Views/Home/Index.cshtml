@@ -48,7 +48,7 @@
 
         if ('serviceWorker' in navigator && 'PushManager' in window) {
             (function () {
-                navigator.serviceWorker.register('sw.js?v=6').then(function (registration) {
+                navigator.serviceWorker.register('sw.js?v=11').then(function (registration) {
                     //Registration was successful
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
                     notify("ServiceWorker registration successful");

@@ -22,6 +22,11 @@ namespace Api.Controllers
                 Description = "Desc 2",
                 Link = "https://d2.com",
                 Title = "D2"
+            }, new RSSFeed
+            {
+                Description = "Desc 3",
+                Link = "https://d3.com",
+                Title = "D3"
             }};
         }
 

@@ -47,8 +47,7 @@ namespace Web.Controllers
             var webPushClient = new WebPushClient();
             try
             {
-                webPushClient.SendNotification(subscription, "payload", vapidDetails);
-                //webPushClient.SendNotification(subscription, "payload", gcmAPIKey);
+                webPushClient.SendNotification(subscription, "Test message", vapidDetails);
             }
             catch (WebPushException exception)
             {
