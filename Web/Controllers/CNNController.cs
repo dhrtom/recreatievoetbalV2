@@ -14,7 +14,7 @@ namespace Web.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var restClient = new RestSharp.RestClient("http://localhost:5001");
+            var restClient = new RestSharp.RestClient("http://api:5001");
             var result = await restClient.GetAsync<List<RSSFeed>>(new RestRequest
             {
                 Method = Method.GET,

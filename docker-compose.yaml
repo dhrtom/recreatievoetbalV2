@@ -7,6 +7,8 @@ web:
     - 5000:80
   expose:
     - "5000"
+#  links:
+#   - api:api
   image: recreatievoetbalv2.web:latest
   restart: always
 
