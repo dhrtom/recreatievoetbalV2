@@ -1,0 +1,20 @@
+FROM microsoft/dotnet:2.1-sdk AS build
+WORKDIR /app
+
+# copy csproj and restore as distinct layers
+COPY Web/*.csproj ./Web/
+COPY WebPush/*.csproj ./WebPush/
+WORKDIR /app/Web
+RUN dotnet restore
+
+# copy and publish app and libraries
+WORKDIR /app/
+COPY Web/. ./Web/
+COPY WebPush/. ./WebPush/
+WORKDIR /app/Web
+RUN dotnet publish -c Release -o out
+
+FROM microsoft/dotnet:2.1-aspnetcore-runtime AS runtime
+WORKDIR /app
+COPY --from=build /app/Web/out ./
+ENTRYPOINT ["dotnet", "Web.dll"]

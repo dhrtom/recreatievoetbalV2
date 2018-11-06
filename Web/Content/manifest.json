@@ -1,0 +1,26 @@
+﻿{
+  "short_name": "Recreatievoetbal V2",
+  "name": "Recreatievoetbal V2",
+  "icons": [
+    {
+      "src": "img/sample-logo.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "/img/icon192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/img/icon512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#2196F3",
+  "theme_color": "#2196F3"
+}

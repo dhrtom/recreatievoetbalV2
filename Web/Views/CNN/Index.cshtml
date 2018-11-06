@@ -1,0 +1,10 @@
+﻿@model List<Shared.RSSFeed>
+
+@{
+    ViewData["Title"] = "CNN";
+}
+
+<div class="jumbotron">
+    <p>CNN Feeds</p>
+    @Html.Partial("_RSSFeedView", Model)
+</div>
