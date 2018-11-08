@@ -3,16 +3,18 @@ WORKDIR /app
 
 # copy csproj and restore as distinct layers
 COPY Web/*.csproj ./Web/
-COPY Shared/*.csproj ./Shared/
-COPY WebPush/*.csproj ./WebPush/
+COPY Data/*.csproj ./Data/
+COPY Services/*.csproj ./Services/
+COPY Services.Abstractions/*.csproj ./Services.Abstractions/
 WORKDIR /app/Web
 RUN dotnet restore
 
 # copy and publish app and libraries
 WORKDIR /app/
 COPY Web/. ./Web/
-COPY Shared/. ./Shared/
-COPY WebPush/. ./WebPush/
+COPY Data/. ./Data/
+COPY Services/. ./Services/
+COPY Services.Abstractions/. ./Services.Abstractions/
 WORKDIR /app/Web
 RUN dotnet publish -c Release -o out
 

@@ -44,11 +44,11 @@ self.addEventListener('activate', event => {
 
 // Fetch
 this.addEventListener('fetch', function (event) {
-
+return;
     if (ignoreRequests.test(event.request.url)) {
         console.log('ignored: ', event.request.url);
         // request will be networked
-        return
+        return;
     }
 
     event.respondWith(retrieveFromCache(event));

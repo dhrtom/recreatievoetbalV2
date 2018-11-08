@@ -1,0 +1,17 @@
+﻿@inject IOptions<AppSettings> appSettings;
+@using Microsoft.Extensions.Options
+@using Web
+@model List<Web.ViewModels.Team>
+
+@foreach (var team in Model)
+{
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">@team.Name</h3>
+        </div>
+        <div class="panel-body">
+            
+            <img src="@(new Uri(appSettings.Value.ImageBaseUrl, team.TeamPictureUrl))"/>
+        </div>
+    </div>
+}

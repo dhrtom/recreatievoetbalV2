@@ -1,6 +1,5 @@
-﻿namespace Web.Model
+﻿namespace Web.ViewModels.Other
 {
-
     public class Subscription
     {
         public string endpoint { get; set; }

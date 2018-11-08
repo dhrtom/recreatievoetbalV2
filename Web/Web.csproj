@@ -26,7 +26,9 @@
     <Folder Include="Content\css\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\WebPush\WebPush.csproj" />
+    <ProjectReference Include="..\Services\Services.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\TechCrunch\Index.cshtml" />
   </ItemGroup>
 </Project>

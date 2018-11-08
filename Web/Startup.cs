@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Web.Service;
+using Services;
 
 namespace Web
 {
@@ -19,9 +20,22 @@ namespace Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAntiforgery(
+                options =>
+                {
+                    options.Cookie.Name = "_af";
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    options.HeaderName = "X-XSRF-TOKEN";
+                }
+            );
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings").Bind);
+            services.AddPushSubscriptionStore(Configuration);
+            services.AddPushNotificationService(Configuration);
+            services.AddPushNotificationsQueue();
+            
             // Add framework services.
             services.AddMvc();
-            services.AddTransient<IRSSReaderService, RSSReaderService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

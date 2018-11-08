@@ -3,9 +3,10 @@
   "name": "asp.net",
   "private": true,
   "dependencies": {
-    "jquery": "^3.2.1",
+    "@fortawesome/fontawesome-free": "^5.5.0",
     "bootstrap": "^3.3.7",
-    "bootstrap-notify": "*"
+    "bootstrap-notify": "*",
+    "jquery": "^3.2.1"
   },
   "devDependencies": {
     "extract-text-webpack-plugin": "2.1.0",
