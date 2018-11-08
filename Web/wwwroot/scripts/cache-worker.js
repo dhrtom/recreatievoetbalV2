@@ -1,5 +1,4 @@
-﻿
-var CACHE_NAME = 'v11';
+﻿var CACHE_NAME = 'v11';
 var resTrack = new Map();
 
 var urlsToCache = [

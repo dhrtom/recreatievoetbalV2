@@ -9,15 +9,3 @@ web:
     - "5000"
   image: recreatievoetbalv2.web:latest
   restart: always
-
-api:
-  environment:
-    - VIRTUAL_HOST=api.konijn.it
-    - LETSENCRYPT_HOST=api.konijn.it
-    - LETSENCRYPT_EMAIL=tom@konijn.it
-  ports:
-    - 5001:80
-  expose:
-    - "5001"
-  image: recreatievoetbalv2.api:latest
-  restart: always

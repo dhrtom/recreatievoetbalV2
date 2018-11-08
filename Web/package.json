@@ -3,7 +3,6 @@
   "name": "asp.net",
   "private": true,
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.5.0",
     "bootstrap": "^3.3.7",
     "bootstrap-notify": "*",
     "jquery": "^3.2.1"
