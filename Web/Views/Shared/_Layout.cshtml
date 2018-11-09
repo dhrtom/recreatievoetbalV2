@@ -9,6 +9,7 @@
 
     <script src="~/dist/vendor.bundle.js" asp-append-version="true"> </script>
     <script src="~/dist/app.bundle.js" asp-append-version="true"> </script>
+    <script src="scripts/site.js"></script>
     <link rel="manifest" href="~/manifest.json">
 </head>
 <body>
@@ -26,73 +27,31 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="CNN" asp-action="Index">CNN</a></li>
-                    <li><a asp-area="" asp-controller="CNA" asp-action="Index">CNA</a></li>
-                    <li><a asp-area="" asp-controller="TechCrunch" asp-action="Index">Tech Crunch</a></li>
+                    <li><a asp-area="" asp-controller="Team" asp-action="Index">CNN</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <br />
-
+    
     <div class="container body-content">
         @RenderBody()
         <hr />
     </div>
+<script>
+    
+    // Show online/offline status
+    window.addEventListener('online',  updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
 
-    <script>
-        
-
-navigator.serviceWorker.addEventListener('message', function (event) {
-    reply = processMessage(event.data);
-    event.ports[0].postMessage(reply);
-});
-
-// Send message to service worker
-function send_message_to_sw(msg) {
-    navigator.serviceWorker.controller.postMessage(msg);
-}
-
-// Show online/offline status
- window.addEventListener('online',  updateOnlineStatus);
- window.addEventListener('offline', updateOnlineStatus);
-
- function updateOnlineStatus(event) {
-    var condition = navigator.onLine ? "Live" : "Currently offline";
+    function updateOnlineStatus(event) {
+        var condition = navigator.onLine ? "Live" : "Currently offline";
         notify(condition);
-  }
-
-// Notification
-function notify(msg) {
-            if (!("Notification" in window)) {
-                alert("This browser does not support desktop notification");
-            }else if (Notification.permission === "granted") {
-                // If it's okay let's create a notification
-                var notification = new Notification(msg);
-            } else if (Notification.permission !== "denied") {
-                Notification.requestPermission(function (permission) {
-                    // If the user accepts, let's create a notification
-                    if (permission === "granted") {
-                        var notification = new Notification(msg);
-                    }
-                });
-            }
-        }
-
-function processMessage(msgObj) {
-    try {
-        if (msgObj.type == 1) {
-            notify(msgObj.message);
-            return "received";
-        }
-        console.log(msgObj);
-    } catch (err) {
-        console.log(err);
     }
-}
-
 </script>
+<script src="scripts/push-notifications.js"></script>
+<script src="scripts/cache-worker.js"></script>
 
 
 </body>

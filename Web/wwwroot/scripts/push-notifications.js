@@ -3,9 +3,9 @@
 
     let consoleOutput;
     let pushServiceWorkerRegistration;
+    let _isSubscribed = false;
     let subscribeButton, unsubscribeButton;
-    let topicInput, urgencySelect, notificationInput;
-
+    let topicInput;
     function urlB64ToUint8Array(base64String) {
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
         const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
@@ -44,8 +44,7 @@
         navigator.serviceWorker.register('/scripts/service-workers/push-service-worker.js', { scope: '/scripts/service-workers/push-service-worker/' })
             .then(function (serviceWorkerRegistration) {
                 pushServiceWorkerRegistration = serviceWorkerRegistration;
-
-                // initializeUIState();
+                initializeUIState();
 
                 writeToConsole('Push Service Worker has been registered successfully');
             }).catch(function (error) {
@@ -54,6 +53,7 @@
     };
 
     function initializeUIState() {
+        debugger;
         subscribeButton = document.getElementById('subscribe');
         subscribeButton.addEventListener('click', subscribeForPushNotifications);
 
@@ -61,8 +61,6 @@
         unsubscribeButton.addEventListener('click', unsubscribeFromPushNotifications);
 
         topicInput = document.getElementById('topic');
-        notificationInput = document.getElementById('notification');
-        urgencySelect = document.getElementById('urgency');
         document.getElementById('send').addEventListener('click', sendPushNotification);
 
         pushServiceWorkerRegistration.pushManager.getSubscription()
@@ -71,9 +69,16 @@
             });
     };
 
-    function changeUIState(notificationsBlocked, isSubscibed) {
-        subscribeButton.disabled = notificationsBlocked || isSubscibed;
-        unsubscribeButton.disabled = notificationsBlocked || !isSubscibed;
+    function changeUIState(notificationsBlocked, isSubscribed) {
+        _isSubscribed = isSubscribed;
+
+        if (isSubscribed) {
+            console.log('User IS subscribed.');
+        } else {
+            console.log('User is NOT subscribed.');
+        }
+        subscribeButton.disabled = notificationsBlocked || isSubscribed;
+        unsubscribeButton.disabled = notificationsBlocked || !isSubscribed;
 
         if (notificationsBlocked) {
             writeToConsole('Permission for Push Notifications has been denied');
@@ -159,6 +164,27 @@
                 }
             });
     };
+    
+    function sendPushNotification(){
+        if (_isSubscribed) {
+            var url = "/push-notifications-api/notifications";
+            $.postJSON = function(url, data, callback) {
+                return jQuery.ajax({
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    'type': 'POST',
+                    'url': url,
+                    'data': JSON.stringify(data),
+                    'dataType': 'json',
+                    'success': callback
+                });
+            };
+            var success = function(result){console.log('OK')};
+            $.postJSON(url, {'Topic' : 'Topic', 'Urgency' : 'Normal', 'Notification' : 'Notification'} , success)
+        }
+    }
 
     return {
         initialize: function () {
