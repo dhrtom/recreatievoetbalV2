@@ -9,6 +9,11 @@ COPY Services.Abstractions/*.csproj ./Services.Abstractions/
 WORKDIR /app/WebReactRedux
 RUN dotnet restore
 
+#Install npm
+RUN apt-get update && apt-get install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN apt-get update && apt-get install -y nodejs
+
 # copy and publish app and libraries
 WORKDIR /app/
 COPY WebReactRedux/. ./WebReactRedux/
@@ -16,7 +21,6 @@ COPY Data/. ./Data/
 COPY Services/. ./Services/
 COPY Services.Abstractions/. ./Services.Abstractions/
 WORKDIR /app/WebReactRedux
-RUN apt-get update && apt-get install -y curl
 RUN dotnet publish -c Release -o out
 
 FROM microsoft/dotnet:2.1-aspnetcore-runtime AS runtime
