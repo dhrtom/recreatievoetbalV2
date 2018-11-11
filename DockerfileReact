@@ -1,0 +1,24 @@
+FROM microsoft/dotnet:2.1-sdk AS build
+WORKDIR /app
+
+# copy csproj and restore as distinct layers
+COPY WebReactRedux/*.csproj ./WebReactReduxReactRedux/
+COPY Data/*.csproj ./Data/
+COPY Services/*.csproj ./Services/
+COPY Services.Abstractions/*.csproj ./Services.Abstractions/
+WORKDIR /app/WebReactRedux
+RUN dotnet restore
+
+# copy and publish app and libraries
+WORKDIR /app/
+COPY WebReactRedux/. ./WebReactRedux/
+COPY Data/. ./Data/
+COPY Services/. ./Services/
+COPY Services.Abstractions/. ./Services.Abstractions/
+WORKDIR /app/WebReactRedux
+RUN dotnet publish -c Release -o out
+
+FROM microsoft/dotnet:2.1-aspnetcore-runtime AS runtime
+WORKDIR /app
+COPY --from=build /app/WebReactRedux/out ./
+ENTRYPOINT ["dotnet", "WebReactRedux.dll"]
