@@ -3,12 +3,7 @@ let resTrack = new Map();
 
 const urlsToCache = [
     '/',
-    '/Home/FallBack',
-    '/Team',
-    '/dist/app.bundle.js',
-    '/dist/vendor.bundle.js',
-    '/css/all.css',
-    '/dist/vendor.css'
+    '/Home/FallBack'
 ];
 
 const ignoreRequests = new RegExp('(' + ['/Home/TriggerPush'].join('(\/?)|\\') + ')$');
