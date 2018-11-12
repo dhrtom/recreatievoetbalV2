@@ -1,12 +1,16 @@
-const CACHE_NAME = 'v11';
+const CACHE_NAME = 'v1';
 let resTrack = new Map();
 
 const urlsToCache = [
     '/',
-    '/Home/FallBack'
+    '/static/js/bundle.js',
+    '/manifest.json',
+    '/favicon.ico',
+    '/Home/FallBack',
+    '/api/SampleData/WeatherForecasts?startDateIndex=0'
 ];
 
-const ignoreRequests = new RegExp('(' + ['/Home/TriggerPush'].join('(\/?)|\\') + ')$');
+const ignoreRequests = new RegExp('(' + ['/Home/TriggerPush','/sockjs-node/info.*' ].join('(\/?)|\\') + ')$');
 
 // Install
 self.addEventListener('install', function(event) {
@@ -82,7 +86,7 @@ function retrieveFromCache(event) {
 };
 
 self.addEventListener('message', function (event) {
-    reply = processMessage(event.data);
+    var reply = processMessage(event.data);
     event.ports[0].postMessage(reply);
 });
 
