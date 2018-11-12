@@ -12,3 +12,13 @@ export default () => (
     <Route path='/fetchdata/:startDateIndex?' component={FetchData} />
   </Layout>
 );
+
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    debugger;
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+});
