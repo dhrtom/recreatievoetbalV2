@@ -1,6 +1,6 @@
 {
-  "name": "WebReactRedux",
   "short_name": "WebReact",
+  "name": "WebReactRedux",
   "icons": [
     {
       "src": "/images/sample-logo.png",
@@ -19,6 +19,7 @@
     }
   ],
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "theme_color": "#000000",
   "background_color": "#ffffff"
