@@ -43,7 +43,7 @@ self.addEventListener('activate', event => {
 
 // Fetch
 self.addEventListener('fetch', function (event) {
-
+    console.log('fetch: ' + event.request.url);
     if (ignoreRequests.test(event.request.url)) {
         console.log('ignored: ', event.request.url);
         // request will be networked
