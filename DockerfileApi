@@ -2,11 +2,12 @@ FROM microsoft/dotnet:2.1-sdk AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
-COPY WebReactRedux/*.csproj ./WebReactRedux/
+COPY Api/*.csproj ./Api/
 COPY Data/*.csproj ./Data/
+COPY Shared/*.csproj ./Shared/
 COPY Services/*.csproj ./Services/
 COPY Services.Abstractions/*.csproj ./Services.Abstractions/
-WORKDIR /app/WebReactRedux
+WORKDIR /app/Api
 RUN dotnet restore
 
 #Install npm
@@ -16,14 +17,15 @@ RUN apt-get update && apt-get install -y nodejs
 
 # copy and publish app and libraries
 WORKDIR /app/
-COPY WebReactRedux/. ./WebReactRedux/
+COPY Api/. ./Api/
 COPY Data/. ./Data/
+COPY Shared/. ./Shared/
 COPY Services/. ./Services/
 COPY Services.Abstractions/. ./Services.Abstractions/
-WORKDIR /app/WebReactRedux
+WORKDIR /app/Api
 RUN dotnet publish -c Release -o out
 
 FROM microsoft/dotnet:2.1-aspnetcore-runtime AS runtime
 WORKDIR /app
-COPY --from=build /app/WebReactRedux/out ./
-ENTRYPOINT ["dotnet", "WebReactRedux.dll"]
+COPY --from=build /app/Api/out ./
+ENTRYPOINT ["dotnet", "Api.dll"]
