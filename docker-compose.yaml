@@ -59,9 +59,9 @@ services:
   recreatievoetbalv2-api:
     image: recreatievoetbalv2.api:latest
     ports:
-      - "5001:80"
+      - "5000:80"
     expose:
-      - 5001
+      - 5000
     environment:
       VIRTUAL_HOST: api.konijn.it
       LETSENCRYPT_HOST: api.konijn.it
