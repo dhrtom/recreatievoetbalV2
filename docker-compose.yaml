@@ -45,21 +45,21 @@ services:
     - certs:/etc/nginx/certs
     - /var/run/docker.sock:/var/run/docker.sock:ro
 
-  recreatievoetbalv2-web:
-    image: recreatievoetbalv2.web:latest
-    ports:
-    - "5000:5000"
-    expose:
-    - 5000
-    environment:
-      VIRTUAL_HOST: konijn.it
-      LETSENCRYPT_HOST: konijn.it
-      LETSENCRYPT_EMAIL: foo@konijn.it
+#  recreatievoetbalv2-web:
+#    image: recreatievoetbalv2.web:latest
+#    ports:
+#    - "80:5000"
+#    expose:
+#    - 5000
+#    environment:
+#      VIRTUAL_HOST: konijn.it
+#      LETSENCRYPT_HOST: konijn.it
+#      LETSENCRYPT_EMAIL: foo@konijn.it
 
   recreatievoetbalv2-api:
     image: recreatievoetbalv2.api:latest
     ports:
-      - "5001:5000"
+      - "80:5000"
     expose:
       - 5001
     environment:
