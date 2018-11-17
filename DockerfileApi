@@ -10,11 +10,6 @@ COPY Services.Abstractions/*.csproj ./Services.Abstractions/
 WORKDIR /app/Api
 RUN dotnet restore
 
-#Install npm
-RUN apt-get update && apt-get install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-RUN apt-get update && apt-get install -y nodejs
-
 # copy and publish app and libraries
 WORKDIR /app/
 COPY Api/. ./Api/

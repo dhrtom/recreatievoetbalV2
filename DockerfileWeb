@@ -2,25 +2,26 @@ FROM microsoft/dotnet:2.1-sdk AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
-COPY BlazorWeb/*.csproj ./BlazorWeb/
+COPY WebBlazor/*.csproj ./WebBlazor/
 COPY Data/*.csproj ./Data/
 COPY Shared/*.csproj ./Shared/
 COPY Services/*.csproj ./Services/
 COPY Services.Abstractions/*.csproj ./Services.Abstractions/
-WORKDIR /app/BlazorWeb
+WORKDIR /app/WebBlazor
 RUN dotnet restore
 
 # copy and publish app and libraries
 WORKDIR /app/
-COPY BlazorWeb/. ./BlazorWeb/
+COPY WebBlazor/. ./WebBlazor/
 COPY Data/. ./Data/
 COPY Shared/. ./Shared/
 COPY Services/. ./Services/
 COPY Services.Abstractions/. ./Services.Abstractions/
-WORKDIR /app/BlazorWeb
+WORKDIR /app/WebBlazor
 RUN dotnet publish -c Release -o out
+dotnet new -i Microsoft.AspNetCore.Blazor.Templates
 
 FROM microsoft/dotnet:2.1-aspnetcore-runtime AS runtime
 WORKDIR /app
-COPY --from=build /app/BlazorWeb/out ./
-ENTRYPOINT ["dotnet", "BlazorWeb.dll"]
+COPY --from=build /app/WebBlazor/out ./
+ENTRYPOINT ["dotnet", "WebBlazor.dll"]
