@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="Lib.Net.Http.WebPush, Version=1.5.0.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>C:\Users\tom\.nuget\packages\lib.net.http.webpush\1.5.0\lib\netstandard2.0\Lib.Net.Http.WebPush.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>
