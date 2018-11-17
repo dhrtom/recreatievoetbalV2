@@ -59,7 +59,7 @@ services:
   recreatievoetbalv2-api:
     image: recreatievoetbalv2.api:latest
     ports:
-      - "80:5000"
+      - "5001:80"
     expose:
       - 5001
     environment:
