@@ -18,8 +18,8 @@ COPY Shared/. ./Shared/
 COPY Services/. ./Services/
 COPY Services.Abstractions/. ./Services.Abstractions/
 WORKDIR /app/WebBlazor
+RUN dotnet new -i Microsoft.AspNetCore.Blazor.Templates
 RUN dotnet publish -c Release -o out
-dotnet new -i Microsoft.AspNetCore.Blazor.Templates
 
 FROM microsoft/dotnet:2.1-aspnetcore-runtime AS runtime
 WORKDIR /app
