@@ -1,27 +1,29 @@
-FROM microsoft/dotnet:2.1-sdk AS build
+# Stage 1: Compile and publish the source code
+FROM microsoft/dotnet:2.1-sdk-alpine AS builder
 WORKDIR /app
+COPY *.sln ./
+COPY Shared ./Shared
+COPY Data ./Data
+COPY Services ./Services
+COPY Services.Abstractions ./Services.Abstractions
+COPY Api ./Api
+COPY Web ./Web
+COPY WebBlazor ./WebBlazor
 
-# copy csproj and restore as distinct layers
-COPY WebBlazor/*.csproj ./WebBlazor/
-COPY Data/*.csproj ./Data/
-COPY Shared/*.csproj ./Shared/
-COPY Services/*.csproj ./Services/
-COPY Services.Abstractions/*.csproj ./Services.Abstractions/
-WORKDIR /app/WebBlazor
+## restore onto a separate layer. That way, we have a single 
 RUN dotnet restore
 
-# copy and publish app and libraries
-WORKDIR /app/
-COPY WebBlazor/. ./WebBlazor/
-COPY Data/. ./Data/
-COPY Shared/. ./Shared/
-COPY Services/. ./Services/
-COPY Services.Abstractions/. ./Services.Abstractions/
-WORKDIR /app/WebBlazor
-#RUN dotnet new -i Microsoft.AspNetCore.Blazor.Templates
-RUN dotnet publish -c Release -o out
+RUN dotnet publish --configuration Release --no-restore --output /app/out /p:PublishWithAspNetCoreTargetManifest="false"
 
-FROM microsoft/dotnet:2.1-aspnetcore-runtime AS runtime
+# Stage 2: Copies the published code out to published image
+FROM microsoft/dotnet:2.1-aspnetcore-runtime-alpine
 WORKDIR /app
-COPY --from=build /app/WebBlazor/out ./
+ENV ASPNETCORE_URLS http://+:5000
+
+COPY --from=builder /app/out .
+
+# Super hack to work around https://github.com/aspnet/Blazor/issues/376
+#RUN mv -n wwwroot/* WebBlazor/dist
+#RUN rm -rf wwwroot/
+
 ENTRYPOINT ["dotnet", "WebBlazor.dll"]
