@@ -26,4 +26,4 @@ COPY --from=builder /app/out .
 #RUN mv -n wwwroot/* WebBlazor/dist
 #RUN rm -rf wwwroot/
 
-ENTRYPOINT ["dotnet", "WebBlazor.dll"]
+ENTRYPOINT ["dotnet", "PokeBlazor.Server.dll"]
