@@ -25,13 +25,13 @@
         './_framework/_bin/Microsoft.Extensions.DependencyInjection.dll',
         './_framework/_bin/Microsoft.JSInterop.dll',
         './_framework/_bin/mscorlib.dll',
-        './_framework/_bin/netstandard.dll',
+        // './_framework/_bin/netstandard.dll',
         './_framework/_bin/System.Net.Http.dll',
         './_framework/_bin/Mono.WebAssembly.Interop.dll',
         './_framework/_bin/System.dll',
         './_framework/_bin/System.Core.dll',
         //The compiled project .dll's
-        './_framework/_bin/DotnetPwaSample.dll'
+        // './_framework/_bin/WebBlazor.dll'
     ];
     
     let cacheServiceWorkerRegistration;
