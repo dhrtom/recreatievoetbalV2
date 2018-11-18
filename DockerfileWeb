@@ -8,6 +8,7 @@ COPY Services ./Services
 COPY Services.Abstractions ./Services.Abstractions
 COPY Shared ./Shared
 COPY WebBlazor ./WebBlazor
+COPY WebBlazor.Server ./WebBlazor.Server
 
 ## restore onto a separate layer. That way, we have a single
 RUN dotnet restore
@@ -25,4 +26,4 @@ COPY --from=builder /app/out .
 #RUN mv -n wwwroot/* Client/dist
 #RUN rm -rf wwwroot/
 
-ENTRYPOINT ["dotnet", "WebBlazor.dll"]
+ENTRYPOINT ["dotnet", "WebBlazor.Server.dll"]

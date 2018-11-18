@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{D835C89C-F0C9-43A2-92AD-1811D9112715}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebBlazor.Server", "WebBlazor.Server\WebBlazor.Server.csproj", "{0620E2D7-7E59-4324-BC12-06E66F0D3ED9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{D835C89C-F0C9-43A2-92AD-1811D9112715}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D835C89C-F0C9-43A2-92AD-1811D9112715}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D835C89C-F0C9-43A2-92AD-1811D9112715}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0620E2D7-7E59-4324-BC12-06E66F0D3ED9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0620E2D7-7E59-4324-BC12-06E66F0D3ED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0620E2D7-7E59-4324-BC12-06E66F0D3ED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0620E2D7-7E59-4324-BC12-06E66F0D3ED9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
