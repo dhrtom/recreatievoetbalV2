@@ -89,7 +89,7 @@
         if (applicationServerPublicKey) {
             subscribeForPushNotificationsInternal();
         } else {
-            fetch('push-notifications-api/public-key')
+            fetch('https://api.konijn.it/push-notifications-api/public-key')
                 .then(function (response) {
                     if (response.ok) {
                         return response.text();
