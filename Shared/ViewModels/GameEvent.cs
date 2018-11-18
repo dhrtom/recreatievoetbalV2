@@ -1,4 +1,4 @@
-namespace Web.ViewModels
+namespace Shared.ViewModels
 {
     public class GameEvent
     {

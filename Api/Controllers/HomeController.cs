@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Web.ViewModels;
-using Web.ViewModels.Other;
+using Shared.ViewModels.Other;
 
-namespace Web.Controllers
+namespace Api.Controllers
 {
     public class HomeController : Controller
     {

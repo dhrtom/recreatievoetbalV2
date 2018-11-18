@@ -2,9 +2,9 @@
 using Lib.Net.Http.WebPush;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
-using Web.ViewModels.Other;
+using Shared.ViewModels.Other;
 
-namespace Web.Controllers
+namespace Api.Controllers
 {
     [Route("push-notifications-api")]
     public class PushNotificationsApiController : Controller

@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Web.ViewModels;
+using Shared.ViewModels;
 
-namespace Web.Controllers
+namespace Api.Controllers
 {
     public class TeamController : Controller
     {

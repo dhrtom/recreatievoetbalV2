@@ -1,4 +1,4 @@
-﻿namespace Web.ViewModels.Other
+﻿namespace Shared.ViewModels.Other
 {
     public class Subscription
     {

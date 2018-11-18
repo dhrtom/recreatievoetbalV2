@@ -1,6 +1,6 @@
 using Lib.Net.Http.WebPush;
 
-namespace Web.ViewModels.Other
+namespace Shared.ViewModels.Other
 {
     public class PushMessageViewModel
     {
