@@ -48,7 +48,7 @@ services:
   recreatievoetbalv2-web:
     image: recreatievoetbalv2.web:latest
     ports:
-    - "5000:80"
+    - "5000:5000"
     environment:
       VIRTUAL_HOST: konijn.it
       LETSENCRYPT_HOST: konijn.it
