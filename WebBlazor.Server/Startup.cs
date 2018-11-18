@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 
-namespace PokeBlazor.Server
+namespace WebBlazor.Server
 {
     public class Startup
     {

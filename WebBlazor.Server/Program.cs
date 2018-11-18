@@ -5,7 +5,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
-namespace PokeBlazor.Server
+namespace WebBlazor.Server
 {
     public class Program
     {
