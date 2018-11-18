@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <AssemblyName>WebBlazor.Server</AssemblyName>
+    <RootNamespace>WebBlazor.Server</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="0.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WebBlazor\WebBlazor.csproj" />
+  </ItemGroup>
+</Project>
