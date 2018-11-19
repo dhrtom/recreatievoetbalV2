@@ -50,9 +50,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER=postgres
-      POSTGRES_PASSWORD=nYNRWDXqmrAPT8EASZH9
-      POSTGRES_DB=RecreatieVoetbalPWA
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: nYNRWDXqmrAPT8EASZH9
+      POSTGRES_DB: RecreatieVoetbalPWA
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
   
