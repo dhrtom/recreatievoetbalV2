@@ -113,7 +113,7 @@
             applicationServerKey: applicationServerPublicKey
         })
             .then(function (pushSubscription) {
-                fetch('push-notifications-api/subscriptions', {
+                fetch('https://api.konijn.it/push-notifications-api/subscriptions', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(pushSubscription)
@@ -144,7 +144,7 @@
                 if (pushSubscription) {
                     pushSubscription.unsubscribe()
                         .then(function () {
-                            fetch('push-notifications-api/subscriptions?endpoint=' + encodeURIComponent(pushSubscription.endpoint), {
+                            fetch('https://api.konijn.it/push-notifications-api/subscriptions?endpoint=' + encodeURIComponent(pushSubscription.endpoint), {
                                 method: 'DELETE',
                             })
                                 .then(function (response) {
