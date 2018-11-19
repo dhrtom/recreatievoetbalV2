@@ -13,7 +13,7 @@ namespace Data
             var sqlConnectionString = configuration.GetConnectionString("WebsiteDB");
             services.AddEntityFrameworkSqlServer().AddDbContext<WebsiteDbContext>(options => options.UseNpgsql(sqlConnectionString, o =>
             {
-                o.MigrationsAssembly("RecreatievoetbalPWA.Data");
+                o.MigrationsAssembly("Data");
             }));
 
             services.AddTransient<IPushSubscriptionStore, DatabasePushSubscriptionStore>();
