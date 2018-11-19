@@ -33,6 +33,7 @@ namespace Api
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings").Bind);
             services.AddPushSubscriptionStore(Configuration)
                     .AddPushNotificationService(Configuration)
+                    .AddPushNotificationService(Configuration)
                     .AddPushNotificationsQueue();
             
             services.AddCors(options =>
@@ -69,6 +70,8 @@ namespace Api
                 app.UseHsts();
             }
 
+            app.UsePushSubscriptionStore();
+            
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
