@@ -41,7 +41,7 @@ namespace Api
                     .AddPushNotificationService(Configuration)
                     .AddPushNotificationsQueue();
             
-            services.AddCors(options => options.AddPolicy("AllowSubdomain", p => p.WithOrigins("http://*.konijn.it")
+            services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowAnyHeader())); 
             
@@ -62,7 +62,8 @@ namespace Api
 
             app.UseHttpsRedirection();
             app.UseMvc();
-            app.UseCors("AllowSubdomain");
+            
+            app.UseCors("AllowAll");
         }
     }
 }
