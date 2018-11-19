@@ -93,28 +93,27 @@ function retrieveFromCache(event) {
 
     return caches.open(CACHE_NAME).then(function (cache) {
 
+        if (navigator.onLine) {
+            var fetchRequest = event.request.clone();
+            return fetch(fetchRequest).then(
+                function (response) {
+                    if (!response || response.status !== 200 || response.type !== 'basic') {
+                        return response;
+                    }
+
+                    var responseToCache = response.clone();
+                    cache.put(event.request, responseToCache);
+                    resTrack.set(event.request.url, new Date().getTime());
+                    return response;
+                });
+        }
+        
         return cache.match(event.request).then(function (response) {
             if (response) {
                 return response;
-            }
-
-            if (navigator.onLine) {
-                var fetchRequest = event.request.clone();
-                return fetch(fetchRequest).then(
-                    function (response) {
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-
-                        var responseToCache = response.clone();
-                        cache.put(event.request, responseToCache);
-                        resTrack.set(event.request.url, new Date().getTime());
-                        return response;
-                    });
             } else {
                 // sendNotification("You are offline, you will be redirected to home page.");
                 return caches.match(self.location.origin + '/Home/Fallback');
-
             }
         })
     })
