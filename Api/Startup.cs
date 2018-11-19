@@ -41,6 +41,10 @@ namespace Api
                     .AddPushNotificationService(Configuration)
                     .AddPushNotificationsQueue();
             
+            services.AddCors(options => options.AddPolicy("AllowSubdomain", p => p.SetIsOriginAllowedToAllowWildcardSubdomains("https://*konijn.it")
+                .AllowAnyMethod()
+                .AllowAnyHeader())); 
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
