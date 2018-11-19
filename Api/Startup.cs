@@ -41,9 +41,18 @@ namespace Api
                     .AddPushNotificationService(Configuration)
                     .AddPushNotificationsQueue();
             
-            services.AddCors(options => options.AddPolicy("AllowAll", p => p.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader())); 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder =>
+                    {
+                        builder
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials()
+                            .WithOrigins("https://konijn.it");
+                    });
+            });
             
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -61,9 +70,8 @@ namespace Api
             }
 
             app.UseHttpsRedirection();
+            app.UseCors("CorsPolicy");
             app.UseMvc();
-            
-            app.UseCors("AllowAll");
         }
     }
 }
