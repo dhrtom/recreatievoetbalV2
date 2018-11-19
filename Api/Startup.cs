@@ -62,6 +62,7 @@ namespace Api
 
             app.UseHttpsRedirection();
             app.UseMvc();
+            app.UseCors("AllowSubdomain");
         }
     }
 }
