@@ -41,6 +41,8 @@ Welcome to your new app.
         }
         return default(T);
     }
+    //var domain = "http://localhost:8001";
+    private string _domain = "";
     
     protected override async Task OnInitAsync()
     {
@@ -54,18 +56,18 @@ Welcome to your new app.
             // Subscribe
             if (_applicationServerPublicKeyBase64 == null)
             {
-                _applicationServerPublicKeyBase64 = await Http.GetStringAsync("http://localhost:8001/push-notifications-api/public-key");
+                _applicationServerPublicKeyBase64 = await Http.GetStringAsync($"{_domain}/push-notifications-api/public-key");
             }
             _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SubscribeForPushNotifications", "GetSubscriptionResult", _applicationServerPublicKeyBase64);
             if (_subscriptionResult != null)
             {
-                await Http.PostJsonAsync("http://localhost:8001/push-notifications-api/subscriptions", _subscriptionResult.subscription);
+                await Http.PostJsonAsync($"{_domain}/push-notifications-api/subscriptions", _subscriptionResult.subscription);
             }
         }
         else
         {
             await DoJsPromise<GetSubscriptionResult>("UnsubscribeForPushNotifications", "GetSubscriptionResult");
-            await Http.DeleteAsync("http://localhost:8001/push-notifications-api/subscriptions/?endpoint=" + _subscriptionResult.subscription.Endpoint);
+            await Http.DeleteAsync($"{_domain}/push-notifications-api/subscriptions/?endpoint=" + _subscriptionResult.subscription.Endpoint);
             _subscriptionResult.subscription = null;            
         }
     }
