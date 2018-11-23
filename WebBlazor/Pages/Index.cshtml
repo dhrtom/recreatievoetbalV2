@@ -44,7 +44,7 @@ Welcome to your new app.
     //var domain = "http://localhost:8001";
     private string _domain = "https://api.konijn.it";
     
-    protected override async Task OnInitAsync()
+    protected override async Task OnAfterRenderAsync()
     {
         _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SetSubscription", "GetSubscriptionResult");
     }
