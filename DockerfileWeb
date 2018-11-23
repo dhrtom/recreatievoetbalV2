@@ -2,11 +2,11 @@
 FROM microsoft/dotnet:2.1-sdk-alpine AS builder
 WORKDIR /app
 COPY *.sln ./
-COPY Api ./Api
-COPY Data ./Data
-COPY Services ./Services
-COPY Services.Abstractions ./Services.Abstractions
-COPY Shared ./Shared
+#COPY Api ./Api
+#COPY Data ./Data
+#COPY Services ./Services
+#COPY Services.Abstractions ./Services.Abstractions
+#COPY Shared ./Shared
 COPY WebBlazor ./WebBlazor
 COPY WebBlazor.Server ./WebBlazor.Server
 
