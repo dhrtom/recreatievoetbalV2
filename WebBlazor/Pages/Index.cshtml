@@ -55,7 +55,10 @@ Welcome to your new app.
     {
         await DoJsPromise<object>("InitPushNotifications", "GetPushServiceWorkerRegistrationResult");
         _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SetSubscription", "GetSubscriptionResult");
-        _subscriptionResult.serverSubscription = await Http.GetStringAsync($"{_domain}/push-notifications-api/subscriptions?endpoint=" + _subscriptionResult.subscription.Endpoint);
+        if (_subscriptionResult?.subscription?.Endpoint != null)
+        {
+            _subscriptionResult.serverSubscription = await Http.GetStringAsync($"{_domain}/push-notifications-api/subscriptions?endpoint=" + _subscriptionResult.subscription.Endpoint);
+        }
     }
 
     async Task SubscribeOrUnsubscribee()
