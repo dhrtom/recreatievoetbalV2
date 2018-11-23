@@ -11,7 +11,7 @@ COPY WebBlazor ./WebBlazor
 COPY WebBlazor.Server ./WebBlazor.Server
 
 ## restore onto a separate layer. That way, we have a single
-RUN dotnet restore
+RUN dotnet restore -f WebBlazor.Server/WebBlazor.Server.csproj
 
 RUN dotnet publish --configuration Release --no-restore --output /app/out /p:PublishWithAspNetCoreTargetManifest="false"
 
