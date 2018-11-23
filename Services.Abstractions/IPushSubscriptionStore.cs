@@ -9,6 +9,8 @@ namespace Services.Abstractions
     {
         Task StoreSubscriptionAsync(PushSubscription subscription);
 
+        Task<PushSubscription> GetSubscriptionAsync(string endpoint);
+        
         Task DiscardSubscriptionAsync(string endpoint);
 
         Task ForEachSubscriptionAsync(Action<PushSubscription> action);

@@ -1,12 +1,13 @@
 let _pushApiSupported = false;
 let _serviceWorkerSupported = false;
-let pushServiceWorkerRegistration;
+let _pushServiceWorkerRegistration = null;
+let _subScriptionResult = null;
 
 var PushNotifications = (function () {
     function registerPushServiceWorker() {
-        navigator.serviceWorker.register('/scripts/service-workers/push-service-worker.js', { scope: '/scripts/service-workers/push-service-worker/' })
+        navigator.serviceWorker.register('/scripts/service-workers/push-service-worker.js', {scope: '/scripts/service-workers/push-service-worker/'})
             .then(function (serviceWorkerRegistration) {
-                pushServiceWorkerRegistration = serviceWorkerRegistration;
+                _pushServiceWorkerRegistration = serviceWorkerRegistration;
 
                 console.log('Push Service Worker has been registered successfully');
             }).catch(function (error) {
@@ -31,7 +32,6 @@ var PushNotifications = (function () {
     };
 })();
 
-PushNotifications.Initialize();
 
 var UrlB64ToUint8Array = function UrlB64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -47,35 +47,52 @@ var UrlB64ToUint8Array = function UrlB64ToUint8Array(base64String) {
     return outputArray;
 };
 
-let _subScriptionResult = null;
+window.InitPushNotifications = () =>
+{
+    if(_pushServiceWorkerRegistration !== null) {
+        return true;
+    }
+    PushNotifications.Initialize();
+    return true;
+}
+
+window.GetPushServiceWorkerRegistrationResult = () => {
+    return _pushServiceWorkerRegistration;
+}
+
 window.GetSubscriptionResult = () => {
     return _subScriptionResult;
-};
-window.SetSubscription = () => {
+}
 
-    pushServiceWorkerRegistration.pushManager.getSubscription()
+window.SetSubscription = () => {
+    if(_subScriptionResult !== null){
+        return true;
+    }
+    _pushServiceWorkerRegistration.pushManager.getSubscription()
         .then(function (subscription) {
             _subScriptionResult = {notificationsBlocked : Notification.permission === 'denied', subscription : subscription, serviceWorkerSupported: _serviceWorkerSupported, pushApiSupported : _pushApiSupported};
         });
     return true;
-};
+}
 
 window.SubscribeForPushNotifications = (applicationServerPublicKeyBase64) => {
-    _subScriptionResult = null;
-    pushServiceWorkerRegistration.pushManager.subscribe({
+    _pushServiceWorkerRegistration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: UrlB64ToUint8Array(applicationServerPublicKeyBase64)
     })
         .then(function (subscription) {
+            console.log("Subscription OK");
             _subScriptionResult = {notificationsBlocked : Notification.permission === 'denied', subscription : subscription, serviceWorkerSupported: _serviceWorkerSupported, pushApiSupported : _pushApiSupported};
         }).catch(function (error) {
             _subScriptionResult = {notificationsBlocked : Notification.permission === 'denied', subscription : null, serviceWorkerSupported: _serviceWorkerSupported, pushApiSupported : _pushApiSupported, error : error};
-    });
+            debugger;
+        console.log("Subscription ERROR " + error);
+        });
     return true;
-};
+}
 
 window.UnsubscribeForPushNotifications = () => {
-    pushServiceWorkerRegistration.pushManager.getSubscription()
+    _pushServiceWorkerRegistration.pushManager.getSubscription()
         .then(function (pushSubscription) {
             if (pushSubscription) {
                 pushSubscription.unsubscribe();

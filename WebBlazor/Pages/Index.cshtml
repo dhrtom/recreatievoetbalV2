@@ -8,60 +8,73 @@
 Welcome to your new app.
 <div class="jumbotron">
     <p>Demo</p>
-    Serviceworkers: @(_subscriptionResult.serviceWorkerSupported ? "Ja" : "Nee")<br/>
-    Push allowed: @(_subscriptionResult.pushApiSupported? "Ja" : "Nee")<br/>
-    Blocked: @(_subscriptionResult.notificationsBlocked ? "Ja" : "Nee")<br/>
-    Subscribed: @(_subscriptionResult.subscription != null ? "Ja" : "Nee")<br/>
+    Serviceworkers: @(_subscriptionResult?.serviceWorkerSupported)<br/>
+    Push allowed: @(_subscriptionResult?.pushApiSupported)<br/>
+    Blocked: @(_subscriptionResult?.notificationsBlocked)<br/>
+    Subscribed: @(_subscriptionResult?.subscription != null ? "Ja" : "Nee")<br/>
     Endpoint: @(_subscriptionResult?.subscription?.Endpoint)<br/>
-    Error: @(_subscriptionResult.error)<br/>
-    <a class="btn btn-primary btn-lg" onclick="@SubscribeOrUnsubscribee" role="button">@(_subscriptionResult.subscription == null ? "Ontvang notificaties" : "Afmelden voor notificaties")</a>
+    serverSubscription: @(_subscriptionResult?.serverSubscription)<br/>
+    Error: @(_subscriptionResult?.error)<br/>
+    <a class="btn btn-primary btn-lg" onclick="@SubscribeOrUnsubscribee" role="button">@(_subscriptionResult?.subscription == null || _subscriptionResult?.serverSubscription != "True" ? "Ontvang notificaties" : "Afmelden voor notificaties")</a>
 
     <div id="subscriptionContext"> </div>
 </div>
 
 @functions{
-    private GetSubscriptionResult _subscriptionResult = new GetSubscriptionResult();
+    private GetSubscriptionResult _subscriptionResult = null;
     private string _applicationServerPublicKeyBase64 = null;
 
-    private async Task<T> DoJsPromise<T>(string setFunction, string getFunction, params object[] parameters)
+    private async Task<T> DoJsPromise<T>(string setFunction, string getFunction, params object[] parameters) where T : class
     {
+        Console.WriteLine($"DoJsPromise {setFunction} - {getFunction}");
+        var result = await JSRuntime.Current.InvokeAsync<T>(getFunction, parameters);
+        if (result != null)
+        {
+            return result;
+        }
         await JSRuntime.Current.InvokeAsync<bool>(setFunction, parameters);
-        var result = await JSRuntime.Current.InvokeAsync<T>(getFunction);
         var tries = 0;
         // try 60 seconds
-        while (result == null && tries < 60)
+        while (result == null && tries < 600)
         {
             tries++;
             result = await JSRuntime.Current.InvokeAsync<T>(getFunction);
             if (result != null)
             {
-                return result ;
+                Console.WriteLine($"return {getFunction} = {result}");
+                return result;
             }
-            await Task.Delay(1000);
+            await Task.Delay(100);
         }
         return default(T);
     }
-    //var domain = "http://localhost:8001";
-    private string _domain = "https://api.konijn.it";
-    
-    protected override async Task OnAfterRenderAsync()
+    private string _domain = "http://localhost:8001";
+//    private string _domain = "https://api.konijn.it";
+
+    protected override async Task OnInitAsync()
     {
+        await DoJsPromise<object>("InitPushNotifications", "GetPushServiceWorkerRegistrationResult");
         _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SetSubscription", "GetSubscriptionResult");
+        _subscriptionResult.serverSubscription = await Http.GetStringAsync($"{_domain}/push-notifications-api/subscriptions?endpoint=" + _subscriptionResult.subscription.Endpoint);
     }
 
     async Task SubscribeOrUnsubscribee()
     {
-        if (_subscriptionResult.subscription == null)
+        if (_subscriptionResult?.subscription == null || _subscriptionResult?.serverSubscription != "True")
         {
-            // Subscribe
+    // Subscribe
+        if (_subscriptionResult?.subscription == null)
+        {
             if (_applicationServerPublicKeyBase64 == null)
             {
                 _applicationServerPublicKeyBase64 = await Http.GetStringAsync($"{_domain}/push-notifications-api/public-key");
             }
             _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SubscribeForPushNotifications", "GetSubscriptionResult", _applicationServerPublicKeyBase64);
-            if (_subscriptionResult != null)
+        }
+        if (_subscriptionResult != null)
             {
                 await Http.PostJsonAsync($"{_domain}/push-notifications-api/subscriptions", _subscriptionResult.subscription);
+                _subscriptionResult.serverSubscription = "True";
             }
         }
         else
@@ -69,6 +82,7 @@ Welcome to your new app.
             await DoJsPromise<GetSubscriptionResult>("UnsubscribeForPushNotifications", "GetSubscriptionResult");
             await Http.DeleteAsync($"{_domain}/push-notifications-api/subscriptions/?endpoint=" + _subscriptionResult.subscription.Endpoint);
             _subscriptionResult.subscription = null;            
+            _subscriptionResult.serverSubscription = null;            
         }
     }
 
@@ -129,6 +143,7 @@ Welcome to your new app.
     {
         public bool notificationsBlocked { get; set; }
         public PushSubscription subscription { get; set; }
+        public string serverSubscription { get; set; }
         public bool serviceWorkerSupported { get; set; }
         public bool pushApiSupported { get; set; }
         public string error { get; set; }

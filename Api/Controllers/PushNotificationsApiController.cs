@@ -27,6 +27,14 @@ namespace Api.Controllers
             return Content(_notificationService.PublicKey, "text/plain");
         }
 
+        // GET push-notifications-api/subscriptions?endpoint={endpoint}
+        [HttpGet("subscriptions")]
+        public async Task<IActionResult> GetSubscriptions(string endpoint)
+        {
+            var subscription = await _subscriptionStore.GetSubscriptionAsync(endpoint);
+            return Content((subscription != null).ToString(), "text/plain");
+        }
+
         // POST push-notifications-api/subscriptions
         [HttpPost("subscriptions")]
         public async Task<IActionResult> StoreSubscription([FromBody]PushSubscription subscription)

@@ -23,13 +23,19 @@ namespace Data
             return _context.SaveChangesAsync();
         }
 
+        public async Task<PushSubscription> GetSubscriptionAsync(string endpoint)
+        {
+            return await _context.Subscriptions.FindAsync(endpoint);
+        }
+
         public async Task DiscardSubscriptionAsync(string endpoint)
         {
-            WebsiteDbContext.PushSubscription subscription = await _context.Subscriptions.FindAsync(endpoint);
-
-            _context.Subscriptions.Remove(subscription);
-
-            await _context.SaveChangesAsync();
+            var subscription = await _context.Subscriptions.FindAsync(endpoint);
+            if (subscription != null)
+            {
+                _context.Subscriptions.Remove(subscription);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public Task ForEachSubscriptionAsync(Action<PushSubscription> action)
