@@ -1,90 +1,134 @@
 ﻿@page "/"
+@inject HttpClient Http
 @using Blazor.Extensions
 @inject INotificationService Notifications
-
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
 <div class="jumbotron">
     <p>Demo</p>
-    <a id="subscribe" class="btn btn-primary btn-lg" href="#" role="button"></a>
-    <a id="unsubscribe" class="btn btn-primary btn-lg" href="#" role="button"></a>
-
-    <a id="send" class="btn btn-danger btn-lg" href="#" role="button">Test Push Notification</a>
+    Serviceworkers: @(_subscriptionResult.serviceWorkerSupported ? "Ja" : "Nee")<br/>
+    Push allowed: @(_subscriptionResult.pushApiSupported? "Ja" : "Nee")<br/>
+    Blocked: @(_subscriptionResult.notificationsBlocked ? "Ja" : "Nee")<br/>
+    Subscribed: @(_subscriptionResult.subscription != null ? "Ja" : "Nee")<br/>
+    Endpoint: @(_subscriptionResult?.subscription?.Endpoint)<br/>
+    Error: @(_subscriptionResult.error)<br/>
+    <a class="btn btn-primary btn-lg" onclick="@SubscribeOrUnsubscribee" role="button">@(_subscriptionResult.subscription == null ? "Ontvang notificaties" : "Afmelden voor notificaties")</a>
 
     <div id="subscriptionContext"> </div>
 </div>
 
-<div class="row">
-    <div class="col-md">
-        <div class="form-group">
-            <label>Supported By Browser?</label>
-            <div class="alert @(isSupportedByBrowser ? "alert-success" : "alert-warning")" role="alert">
-                @(isSupportedByBrowser ? "Notifications are supported!" : "Notifications are not supported by this browser")
-            </div>
-        </div>
-    </div>
-    <div class="col-md">
-        <div class="form-group">
-            <label>User has permission?</label>
-            <div class="alert @(permission == PermissionType.Granted ? "alert-success" : permission == PermissionType.Default ? "alert-secondary" :"alert-warning")" role="alert">
-                The user's permission is: @permission.ToString()
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md">
-        <div class="form-group">
-            <label for="title">Notification Title</label>
-            <input type="text" class="form-control" id="title" placeholder="Enter Title..." bind="@title" />
-            <small class="form-text text-muted">The title will show up at the top of the notification.</small>
-        </div>
-        <div class="form-group">
-            <label for="title">Notification Body</label>
-            <input type="text" class="form-control" id="body" placeholder="Enter Body..." bind="@body" />
-            <small class="form-text text-muted">The body will show up below the title.</small>
-        </div>
-        <div class="form-group">
-            <label for="title">Notification Icon</label>
-            <input type="text" class="form-control" id="icon" placeholder="Enter Icon..." bind="@icon" />
-            <small class="form-text text-muted">The Icon of the notifcation, loaded from wwwroot/images/</small>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-auto mr-auto"></div>
-    <div class="col-auto">
-        <button type="button" class="btn btn-light" onclick="@RequestPermission">Request Permission</button>
-        <button type="button" class="btn btn-primary" onclick="@CreateNotifcationAsync">Create Notification</button>
-    </div>
-</div>
-
 @functions{
-    private PermissionType permission;
-    private bool isSupportedByBrowser;
-    private string title = "My Dummy Title";
-    private string body = "Lorem ipsum dolor sit ...";
-    private string icon = "images/github.png";
+    private GetSubscriptionResult _subscriptionResult = new GetSubscriptionResult();
+    private string _applicationServerPublicKeyBase64 = null;
 
+    private async Task<T> DoJsPromise<T>(string setFunction, string getFunction, params object[] parameters)
+    {
+        await JSRuntime.Current.InvokeAsync<bool>(setFunction, parameters);
+        var result = await JSRuntime.Current.InvokeAsync<T>(getFunction);
+        var tries = 0;
+        // try 60 seconds
+        while (result == null && tries < 60)
+        {
+            tries++;
+            result = await JSRuntime.Current.InvokeAsync<T>(getFunction);
+            if (result != null)
+            {
+                return result ;
+            }
+            await Task.Delay(1000);
+        }
+        return default(T);
+    }
+    
     protected override async Task OnInitAsync()
     {
-        isSupportedByBrowser = await Notifications.IsSupportedByBrowserAsync();
+        _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SetSubscription", "GetSubscriptionResult");
     }
-    private async Task CreateNotifcationAsync()
-    {
-        NotificationOptions options = new NotificationOptions
-        {
-            Body = body,
-            Icon = icon,
-            Renotify = true // By default a notification is not overwritten, so there can only be one.
-        };
 
-        await Notifications.CreateAsync(title, options);
-    }
-    private async Task RequestPermission()
+    async Task SubscribeOrUnsubscribee()
     {
-        permission = await Notifications.RequestPermissionAsync();
+        if (_subscriptionResult.subscription == null)
+        {
+            // Subscribe
+            if (_applicationServerPublicKeyBase64 == null)
+            {
+                _applicationServerPublicKeyBase64 = await Http.GetStringAsync("http://localhost:8001/push-notifications-api/public-key");
+            }
+            _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SubscribeForPushNotifications", "GetSubscriptionResult", _applicationServerPublicKeyBase64);
+            if (_subscriptionResult != null)
+            {
+                await Http.PostJsonAsync("http://localhost:8001/push-notifications-api/subscriptions", _subscriptionResult.subscription);
+            }
+        }
+        else
+        {
+            await DoJsPromise<GetSubscriptionResult>("UnsubscribeForPushNotifications", "GetSubscriptionResult");
+            await Http.DeleteAsync("http://localhost:8001/push-notifications-api/subscriptions/?endpoint=" + _subscriptionResult.subscription.Endpoint);
+            _subscriptionResult.subscription = null;            
+        }
+    }
+
+    class PushSubscription
+    {
+        /// <summary>Gets or sets the subscription endpoint.</summary>
+        public string Endpoint { get; set; }
+
+        /// <summary>
+    /// Gets or sets client keys shared as part of subscription.
+    /// </summary>
+        public IDictionary<string, string> Keys { get; set; }
+
+        /// <summary>
+    /// Gets specific client key shared as part of subscription.
+    /// </summary>
+    /// <param name="keyName">The key name.</param>
+    /// <returns>The key.</returns>
+        public string GetKey(PushEncryptionKeyName keyName)
+        {
+            string str = (string) null;
+            if (this.Keys != null)
+            {
+                string key = this.StringifyKeyName(keyName);
+                if (this.Keys.ContainsKey(key))
+                    str = this.Keys[key];
+            }
+            return str;
+        }
+
+        /// <summary>
+    /// Sets specific client key shared as part of subscription.
+    /// </summary>
+    /// <param name="keyName">The key name.</param>
+    /// <param name="key">The key.</param>
+        public void SetKey(PushEncryptionKeyName keyName, string key)
+        {
+            if (this.Keys == null)
+                this.Keys = (IDictionary<string, string>) new Dictionary<string, string>();
+            this.Keys[this.StringifyKeyName(keyName)] = key;
+        }
+
+        private string StringifyKeyName(PushEncryptionKeyName keyName)
+        {
+            return keyName.ToString().ToLowerInvariant();
+        }
+    }
+    
+    public enum PushEncryptionKeyName
+    {
+        /// <summary>The client P-256 public key for use in ECDH.</summary>
+        P256DH,
+        /// <summary>The client authentication secret.</summary>
+        Auth,
+    }
+    
+    class GetSubscriptionResult
+    {
+        public bool notificationsBlocked { get; set; }
+        public PushSubscription subscription { get; set; }
+        public bool serviceWorkerSupported { get; set; }
+        public bool pushApiSupported { get; set; }
+        public string error { get; set; }
     }
 }
