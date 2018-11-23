@@ -1,18 +1,13 @@
 # Stage 1: Compile and publish the source code
 FROM microsoft/dotnet:2.1-sdk-alpine AS builder
 WORKDIR /app
-COPY *.sln ./
-#COPY Api ./Api
-#COPY Data ./Data
-#COPY Services ./Services
-#COPY Services.Abstractions ./Services.Abstractions
-#COPY Shared ./Shared
 COPY WebBlazor ./WebBlazor
 COPY WebBlazor.Server ./WebBlazor.Server
 
 ## restore onto a separate layer. That way, we have a single
 RUN dotnet restore -f WebBlazor.Server/WebBlazor.Server.csproj
 
+WORKDIR /app/WebBlazor.Server
 RUN dotnet publish --configuration Release --no-restore --output /app/out /p:PublishWithAspNetCoreTargetManifest="false"
 
 # Stage 2: Copies the published code out to published image
