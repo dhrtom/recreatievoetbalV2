@@ -48,8 +48,8 @@ Welcome to your new app.
         }
         return default(T);
     }
-//    private string _domain = "http://localhost:8001";
-    private string _domain = "https://api.konijn.it";
+    private string _domain = "http://localhost:8001";
+//    private string _domain = "https://api.konijn.it";
 
     protected override async Task OnInitAsync()
     {
@@ -65,16 +65,16 @@ Welcome to your new app.
     {
         if (_subscriptionResult?.subscription == null || _subscriptionResult?.serverSubscription != "True")
         {
-    // Subscribe
-        if (_subscriptionResult?.subscription == null)
-        {
-            if (_applicationServerPublicKeyBase64 == null)
+            // Subscribe
+            if (_subscriptionResult?.subscription == null)
             {
-                _applicationServerPublicKeyBase64 = await Http.GetStringAsync($"{_domain}/push-notifications-api/public-key");
+                if (_applicationServerPublicKeyBase64 == null)
+                {
+                    _applicationServerPublicKeyBase64 = await Http.GetStringAsync($"{_domain}/push-notifications-api/public-key");
+                }
+                _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SubscribeForPushNotifications", "GetSubscriptionResult", _applicationServerPublicKeyBase64);
             }
-            _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SubscribeForPushNotifications", "GetSubscriptionResult", _applicationServerPublicKeyBase64);
-        }
-        if (_subscriptionResult != null)
+            if (_subscriptionResult?.subscription != null)
             {
                 await Http.PostJsonAsync($"{_domain}/push-notifications-api/subscriptions", _subscriptionResult.subscription);
                 _subscriptionResult.serverSubscription = "True";

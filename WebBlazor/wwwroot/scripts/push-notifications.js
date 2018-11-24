@@ -61,6 +61,10 @@ window.GetPushServiceWorkerRegistrationResult = () => {
 }
 
 window.GetSubscriptionResult = () => {
+    if(_subScriptionResult === null || _subScriptionResult.subscription === null)
+    {
+        return null;
+    }
     return _subScriptionResult;
 }
 
