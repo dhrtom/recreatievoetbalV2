@@ -16,12 +16,16 @@ Welcome to your new app.
     serverSubscription: @(_subscriptionResult?.serverSubscription)<br/>
     Error: @(_subscriptionResult?.error)<br/>
     <a class="btn btn-primary btn-lg" onclick="@SubscribeOrUnsubscribee" role="button">@(_subscriptionResult?.subscription == null || _subscriptionResult?.serverSubscription != "True" ? "Ontvang notificaties" : "Afmelden voor notificaties")</a>
-
+    
+    @if (_hasHomeScreenButton) {
+        <a class="btn btn-primary btn-lg" onclick="@AddToHomeScreenButton" role="button">Toevoegen als app</a>
+    }
     <div id="subscriptionContext"> </div>
 </div>
 
 @functions{
     private GetSubscriptionResult _subscriptionResult = null;
+    private bool _hasHomeScreenButton = false;
     private string _applicationServerPublicKeyBase64 = null;
 
     private async Task<T> DoJsPromise<T>(string setFunction, string getFunction, params object[] parameters) where T : class
@@ -53,6 +57,7 @@ Welcome to your new app.
 
     protected override async Task OnInitAsync()
     {
+        _hasHomeScreenButton = await JSRuntime.Current.InvokeAsync<bool>("HasAddToHomeScreen");
         await DoJsPromise<object>("InitPushNotifications", "GetPushServiceWorkerRegistrationResult");
         _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SetSubscription", "GetSubscriptionResult");
         if (_subscriptionResult?.subscription?.Endpoint != null)
@@ -61,6 +66,11 @@ Welcome to your new app.
         }
     }
 
+    async Task AddToHomeScreenButton()
+    {
+        await JSRuntime.Current.InvokeAsync<bool>("AddToHomeScreen");
+    }
+    
     async Task SubscribeOrUnsubscribee()
     {
         if (_subscriptionResult?.subscription == null || _subscriptionResult?.serverSubscription != "True")

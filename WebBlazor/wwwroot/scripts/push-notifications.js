@@ -2,6 +2,7 @@ let _pushApiSupported = false;
 let _serviceWorkerSupported = false;
 let _pushServiceWorkerRegistration = null;
 let _subScriptionResult = null;
+let _deferredPrompt = null;
 
 var PushNotifications = (function () {
     function registerPushServiceWorker() {
@@ -103,5 +104,23 @@ window.UnsubscribeForPushNotifications = () => {
                 return encodeURIComponent(pushSubscription.endpoint);
             }
         });
+    return true;
+}
+
+
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+// Stash the event so it can be triggered later.
+_deferredPrompt = e;
+});
+
+window.HasAddToHomeScreen = () =>
+{
+    return _deferredPrompt != null;
+}
+window.AddToHomeScreen = () => {
+    _deferredPrompt.prompt();
     return true;
 }

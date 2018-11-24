@@ -87,7 +87,6 @@ self.addEventListener('fetch', function (event) {
     event.respondWith(retrieveFromCache(event));
 });
 
-
 // Catch first strategy
 function retrieveFromCache(event) {
 
@@ -123,8 +122,3 @@ self.addEventListener('message', function (event) {
     reply = processMessage(event.data);
     event.ports[0].postMessage(reply);
 });
-
-// Send message to service worker
-function send_message_to_sw(msg) {
-    navigator.serviceWorker.controller.postMessage(msg);
-}
