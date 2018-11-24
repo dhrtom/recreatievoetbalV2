@@ -45,8 +45,8 @@ namespace Api
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .AllowCredentials()
-                            .AllowAnyOrigin();
-                        //.WithOrigins("https://konijn.it", "http://localhost:5000");
+//                            .AllowAnyOrigin();
+                        .WithOrigins("https://konijn.it", "http://localhost:5000");
                     });
             });
             

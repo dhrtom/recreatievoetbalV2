@@ -1,9 +1,11 @@
 ﻿const pushNotificationTitle = 'Demo.AspNetCore.PushNotifications';
 
+// https://developers.google.com/web/fundamentals/push-notifications/display-a-notification
 self.addEventListener('push', function (event) {
     event.waitUntil(self.registration.showNotification(pushNotificationTitle, {
         body: event.data.text(),
-        icon: '/images/push-notification-icon.png'
+        icon: '/img/push-notification-icon.png',
+        badge: '/img/badge-128x128.png'
     }));
 });
 

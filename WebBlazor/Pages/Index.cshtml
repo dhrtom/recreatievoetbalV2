@@ -35,7 +35,7 @@ Welcome to your new app.
         await JSRuntime.Current.InvokeAsync<bool>(setFunction, parameters);
         var tries = 0;
         // try 60 seconds
-        while (result == null && tries < 600)
+        while (tries < 600)
         {
             tries++;
             result = await JSRuntime.Current.InvokeAsync<T>(getFunction);
@@ -48,8 +48,8 @@ Welcome to your new app.
         }
         return default(T);
     }
-//    private string _domain = "http://localhost:8001";
-    private string _domain = "https://api.konijn.it";
+    private string _domain = "http://localhost:8001";
+//    private string _domain = "https://api.konijn.it";
 
     protected override async Task OnInitAsync()
     {
