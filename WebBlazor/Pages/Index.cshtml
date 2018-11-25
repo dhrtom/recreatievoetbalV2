@@ -58,7 +58,7 @@ Welcome to your new app.
         Console.WriteLine($"DoJsPromiseSetSubscription {setFunction}, GetSubscriptionResult");
         var result = await JSRuntime.Current.InvokeAsync<GetSubscriptionResult>(setFunction, parameters);
         Console.WriteLine("1");
-        if (subscriptionMustBeFilled && result?.subscription != null || !subscriptionMustBeFilled)
+        if (subscriptionMustBeFilled && result?.subscription != null || !subscriptionMustBeFilled && result != null)
         {
             Console.WriteLine("2");
             return result;
@@ -73,7 +73,7 @@ Welcome to your new app.
             tries++;
             result = await JSRuntime.Current.InvokeAsync<GetSubscriptionResult>("GetSubscriptionResult");
             Console.WriteLine("5 + " + tries);
-            if (subscriptionMustBeFilled && result?.subscription != null || !subscriptionMustBeFilled)
+            if (subscriptionMustBeFilled && result?.subscription != null || !subscriptionMustBeFilled && result != null)
             {
                 Console.WriteLine($"return GetSubscriptionResult = {result}");
                 return result;
