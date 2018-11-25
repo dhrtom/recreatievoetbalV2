@@ -15,7 +15,7 @@ Welcome to your new app.
     Endpoint: @(_subscriptionResult?.subscription?.Endpoint)<br/>
     serverSubscription: @(_subscriptionResult?.serverSubscription)<br/>
     Error: @(_subscriptionResult?.error)<br/>
-    <a class="btn btn-primary btn-lg" onclick="@SubscribeOrUnsubscribee" role="button">@(_subscriptionResult?.subscription == null || _subscriptionResult?.serverSubscription != "True" ? "Ontvang notificaties" : "Afmelden voor notificaties")</a>
+    <a class="btn btn-primary btn-lg" onclick="@SubscribeOrUnsubscribe" role="button">@(_subscriptionResult?.subscription == null || _subscriptionResult?.serverSubscription != true ? "Ontvang notificaties" : "Afmelden voor notificaties")</a>
     
     @if (_hasHomeScreenButton) {
         <a class="btn btn-primary btn-lg" onclick="@AddToHomeScreenButton" role="button">Toevoegen als app</a>
@@ -50,19 +50,51 @@ Welcome to your new app.
             }
             await Task.Delay(100);
         }
-        return default(T);
+        return default;
+    }
+
+    private async Task<GetSubscriptionResult> DoJsPromiseSetSubscription(string setFunction, bool subscriptionMustBeFilled, params string[] parameters)
+    {
+        Console.WriteLine($"DoJsPromiseSetSubscription {setFunction}, GetSubscriptionResult");
+        var result = await JSRuntime.Current.InvokeAsync<GetSubscriptionResult>(setFunction, parameters);
+        Console.WriteLine("1");
+        if (subscriptionMustBeFilled && result?.subscription != null || !subscriptionMustBeFilled)
+        {
+            Console.WriteLine("2");
+            return result;
+        }
+        Console.WriteLine("3");
+        await JSRuntime.Current.InvokeAsync<GetSubscriptionResult>("GetSubscriptionResult", parameters);
+        var tries = 0;
+        // try 60 seconds
+        while (tries < 600)
+        {
+            Console.WriteLine("4 + " + tries);
+            tries++;
+            result = await JSRuntime.Current.InvokeAsync<GetSubscriptionResult>("GetSubscriptionResult");
+            Console.WriteLine("5 + " + tries);
+            if (subscriptionMustBeFilled && result?.subscription != null || !subscriptionMustBeFilled)
+            {
+                Console.WriteLine($"return GetSubscriptionResult = {result}");
+                return result;
+            }
+            await Task.Delay(100);
+        }
+        return null;
     }
 //    private string _domain = "http://localhost:8001";
     private string _domain = "https://api.konijn.it";
 
     protected override async Task OnInitAsync()
     {
+        Console.WriteLine("OnInitAsync");
         _hasHomeScreenButton = await JSRuntime.Current.InvokeAsync<bool>("HasAddToHomeScreen");
+        Console.WriteLine($"HasAddToHomeScreen : {_hasHomeScreenButton}");
         await DoJsPromise<object>("InitPushNotifications", "GetPushServiceWorkerRegistrationResult");
-        _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SetSubscription", "GetSubscriptionResult");
+        _subscriptionResult = await DoJsPromiseSetSubscription("SetSubscription", false);
         if (_subscriptionResult?.subscription?.Endpoint != null)
         {
-            _subscriptionResult.serverSubscription = await Http.GetStringAsync($"{_domain}/push-notifications-api/subscriptions?endpoint=" + _subscriptionResult.subscription.Endpoint);
+            _subscriptionResult.serverSubscription = bool.Parse(await Http.GetStringAsync($"{_domain}/push-notifications-api/subscriptions?endpoint=" + _subscriptionResult.subscription.Endpoint));
         }
     }
 
@@ -71,9 +103,9 @@ Welcome to your new app.
         await JSRuntime.Current.InvokeAsync<bool>("AddToHomeScreen");
     }
     
-    async Task SubscribeOrUnsubscribee()
+    async Task SubscribeOrUnsubscribe()
     {
-        if (_subscriptionResult?.subscription == null || _subscriptionResult?.serverSubscription != "True")
+        if (_subscriptionResult?.subscription == null || _subscriptionResult?.serverSubscription != true)
         {
             // Subscribe
             if (_subscriptionResult?.subscription == null)
@@ -82,20 +114,27 @@ Welcome to your new app.
                 {
                     _applicationServerPublicKeyBase64 = await Http.GetStringAsync($"{_domain}/push-notifications-api/public-key");
                 }
-                _subscriptionResult = await DoJsPromise<GetSubscriptionResult>("SubscribeForPushNotifications", "GetSubscriptionResult", _applicationServerPublicKeyBase64);
+                Console.WriteLine("SubscribeOrUnsubscribe 1");
+                _subscriptionResult = await DoJsPromiseSetSubscription("SubscribeForPushNotifications", true, _applicationServerPublicKeyBase64);
+                Console.WriteLine("SubscribeOrUnsubscribe 2");
             }
+            
+            Console.WriteLine("SubscribeOrUnsubscribe 3");
             if (_subscriptionResult?.subscription != null)
             {
+                Console.WriteLine("SubscribeOrUnsubscribe 4");
                 await Http.PostJsonAsync($"{_domain}/push-notifications-api/subscriptions", _subscriptionResult.subscription);
-                _subscriptionResult.serverSubscription = "True";
+                Console.WriteLine("SubscribeOrUnsubscribe 5");
+                _subscriptionResult.serverSubscription = true;
+                Console.WriteLine("SubscribeOrUnsubscribe 6");
             }
         }
         else
         {
-            await DoJsPromise<GetSubscriptionResult>("UnsubscribeForPushNotifications", "GetSubscriptionResult");
+            await DoJsPromise<object>("UnsubscribeForPushNotifications", "GetSubscriptionResult");
+            Console.WriteLine("endpointUrl : " + _subscriptionResult.subscription.Endpoint);
             await Http.DeleteAsync($"{_domain}/push-notifications-api/subscriptions/?endpoint=" + _subscriptionResult.subscription.Endpoint);
-            _subscriptionResult.subscription = null;            
-            _subscriptionResult.serverSubscription = null;            
+            _subscriptionResult.serverSubscription = false;
         }
     }
 
@@ -156,7 +195,7 @@ Welcome to your new app.
     {
         public bool notificationsBlocked { get; set; }
         public PushSubscription subscription { get; set; }
-        public string serverSubscription { get; set; }
+        public bool serverSubscription { get; set; }
         public bool serviceWorkerSupported { get; set; }
         public bool pushApiSupported { get; set; }
         public string error { get; set; }

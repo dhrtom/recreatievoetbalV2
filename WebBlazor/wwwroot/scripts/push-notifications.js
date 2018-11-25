@@ -62,22 +62,18 @@ window.GetPushServiceWorkerRegistrationResult = () => {
 }
 
 window.GetSubscriptionResult = () => {
-    if(_subScriptionResult === null || _subScriptionResult.subscription === null)
-    {
-        return null;
-    }
     return _subScriptionResult;
 }
 
 window.SetSubscription = () => {
     if(_subScriptionResult !== null){
-        return true;
+        return _subScriptionResult;
     }
     _pushServiceWorkerRegistration.pushManager.getSubscription()
         .then(function (subscription) {
             _subScriptionResult = {notificationsBlocked : Notification.permission === 'denied', subscription : subscription, serviceWorkerSupported: _serviceWorkerSupported, pushApiSupported : _pushApiSupported};
         });
-    return true;
+    return null;
 }
 
 window.SubscribeForPushNotifications = (applicationServerPublicKeyBase64) => {
@@ -88,12 +84,13 @@ window.SubscribeForPushNotifications = (applicationServerPublicKeyBase64) => {
         .then(function (subscription) {
             console.log("Subscription OK");
             _subScriptionResult = {notificationsBlocked : Notification.permission === 'denied', subscription : subscription, serviceWorkerSupported: _serviceWorkerSupported, pushApiSupported : _pushApiSupported};
+            return _subScriptionResult;
         }).catch(function (error) {
             _subScriptionResult = {notificationsBlocked : Notification.permission === 'denied', subscription : null, serviceWorkerSupported: _serviceWorkerSupported, pushApiSupported : _pushApiSupported, error : error};
-            debugger;
+            return _subScriptionResult;
         console.log("Subscription ERROR " + error);
         });
-    return true;
+    return null;
 }
 
 window.UnsubscribeForPushNotifications = () => {
@@ -104,5 +101,4 @@ window.UnsubscribeForPushNotifications = () => {
                 return encodeURIComponent(pushSubscription.endpoint);
             }
         });
-    return true;
 }
