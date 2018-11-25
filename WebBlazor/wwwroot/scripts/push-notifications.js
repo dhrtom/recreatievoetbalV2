@@ -2,7 +2,6 @@ let _pushApiSupported = false;
 let _serviceWorkerSupported = false;
 let _pushServiceWorkerRegistration = null;
 let _subScriptionResult = null;
-let _deferredPrompt = null;
 
 var PushNotifications = (function () {
     function registerPushServiceWorker() {
