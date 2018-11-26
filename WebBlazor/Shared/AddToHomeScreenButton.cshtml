@@ -1,0 +1,19 @@
+﻿@if (_hasHomeScreenButton) {
+    <a class="btn btn-primary btn-lg" onclick="@AddToHomeScreenButtonAction" role="button">Toevoegen als app</a>
+}
+
+@functions{
+    private bool _hasHomeScreenButton = false;
+
+    protected override async Task OnInitAsync()
+    {
+        Console.WriteLine("OnInitAsync");
+        _hasHomeScreenButton = await JSRuntime.Current.InvokeAsync<bool>("HasAddToHomeScreen");
+        Console.WriteLine($"HasAddToHomeScreen : {_hasHomeScreenButton}");
+    }
+
+    async Task AddToHomeScreenButtonAction()
+    {
+        await JSRuntime.Current.InvokeAsync<bool>("AddToHomeScreen");
+    }
+}

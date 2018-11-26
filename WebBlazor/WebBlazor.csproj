@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Blazor.Extensions.Notifications" Version="0.1.0" />
+    <PackageReference Include="MatBlazor" Version="0.4.3" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Browser" Version="0.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="0.7.0" PrivateAssets="all" />
 

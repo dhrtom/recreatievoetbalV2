@@ -1,0 +1,142 @@
+﻿@inject HttpClient Http
+@addTagHelper *,MatBlazor
+<a class="btn btn-primary btn-lg" onclick="@SubscribeOrUnsubscribe" role="button"><MatIcon Icon="@NotificationIcon"></MatIcon></a>
+@functions {
+    [Parameter]
+    private int TeamId { get; set; }
+    private string NotificationIcon { get; set; }
+    private GetSubscriptionResult _subscriptionResult;
+    private string _applicationServerPublicKeyBase64;
+
+    private async Task<T> DoJsPromise<T>(string setFunction, string getFunction, params object[] parameters) where T : class
+    {
+        Console.WriteLine($"DoJsPromise {setFunction} - {getFunction}");
+        var result = await JSRuntime.Current.InvokeAsync<T>(getFunction, parameters);
+        if (result != null)
+        {
+            return result;
+        }
+        await JSRuntime.Current.InvokeAsync<bool>(setFunction, parameters);
+        var tries = 0;
+        // try 60 seconds
+        while (tries < 600)
+        {
+            tries++;
+            result = await JSRuntime.Current.InvokeAsync<T>(getFunction);
+            if (result != null)
+            {
+                Console.WriteLine($"return {getFunction} = {result}");
+                return result;
+            }
+            await Task.Delay(100);
+        }
+        return default;
+    }
+
+    private async Task<GetSubscriptionResult> DoJsPromiseSetSubscription(string setFunction, bool subscriptionMustBeFilled, params string[] parameters)
+    {
+        Console.WriteLine($"DoJsPromiseSetSubscription {setFunction}, GetSubscriptionResult");
+        var result = await JSRuntime.Current.InvokeAsync<GetSubscriptionResult>(setFunction, parameters);
+        Console.WriteLine("1");
+        if (subscriptionMustBeFilled && result?.subscription != null || !subscriptionMustBeFilled && result != null)
+        {
+            Console.WriteLine("2");
+            return result;
+        }
+        Console.WriteLine("3");
+        await JSRuntime.Current.InvokeAsync<GetSubscriptionResult>("GetSubscriptionResult", parameters);
+        var tries = 0;
+        // try 60 seconds
+        while (tries < 600)
+        {
+            Console.WriteLine("4 + " + tries);
+            tries++;
+            result = await JSRuntime.Current.InvokeAsync<GetSubscriptionResult>("GetSubscriptionResult");
+            Console.WriteLine("5 + " + tries);
+            if (subscriptionMustBeFilled && result?.subscription != null || !subscriptionMustBeFilled && result != null)
+            {
+                Console.WriteLine($"return GetSubscriptionResult = {result}");
+                return result;
+            }
+            await Task.Delay(100);
+        }
+        return null;
+    }
+//    private string _domain = "http://localhost:8001";
+    private string _domain = "https://api.konijn.it";
+
+    protected override async Task OnInitAsync()
+    {
+        Console.WriteLine("OnInitAsync");
+        await DoJsPromise<object>("InitPushNotifications", "GetPushServiceWorkerRegistrationResult");
+        _subscriptionResult = await DoJsPromiseSetSubscription("SetSubscription", false);
+        if (_subscriptionResult?.subscription?.Endpoint != null)
+        {
+            _subscriptionResult.serverSubscription = bool.Parse(await Http.GetStringAsync($"{_domain}/push-notifications-api/subscriptions?endpoint=" + _subscriptionResult.subscription.Endpoint));
+        }
+        SetIcon();
+    }
+
+    private void SetIcon()
+    {
+        NotificationIcon = _subscriptionResult?.subscription == null || _subscriptionResult?.serverSubscription != true ? "notifications_none" : "notifications_active";
+    }
+    
+    async Task SubscribeOrUnsubscribe()
+    {
+        if (_subscriptionResult?.subscription == null || _subscriptionResult?.serverSubscription != true)
+        {
+            // Subscribe
+            if (_subscriptionResult?.subscription == null)
+            {
+                if (_applicationServerPublicKeyBase64 == null)
+                {
+                    _applicationServerPublicKeyBase64 = await Http.GetStringAsync($"{_domain}/push-notifications-api/public-key");
+                }
+                Console.WriteLine("SubscribeOrUnsubscribe 1");
+                _subscriptionResult = await DoJsPromiseSetSubscription("SubscribeForPushNotifications", true, _applicationServerPublicKeyBase64);
+                Console.WriteLine("SubscribeOrUnsubscribe 2");
+            }
+            
+            Console.WriteLine("SubscribeOrUnsubscribe 3");
+            if (_subscriptionResult?.subscription != null)
+            {
+                Console.WriteLine("SubscribeOrUnsubscribe 4");
+                await Http.PostJsonAsync($"{_domain}/push-notifications-api/subscriptions", _subscriptionResult.subscription);
+                Console.WriteLine("SubscribeOrUnsubscribe 5");
+                _subscriptionResult.serverSubscription = true;
+                Console.WriteLine("SubscribeOrUnsubscribe 6");
+            }
+        }
+        else
+        {
+            await DoJsPromise<object>("UnsubscribeForPushNotifications", "GetSubscriptionResult");
+            Console.WriteLine("endpointUrl : " + _subscriptionResult.subscription.Endpoint);
+            await Http.DeleteAsync($"{_domain}/push-notifications-api/subscriptions/?endpoint=" + _subscriptionResult.subscription.Endpoint);
+            _subscriptionResult.serverSubscription = false;
+        }
+        SetIcon();
+    }
+
+    class PushSubscription
+    {
+        /// <summary>Gets or sets the subscription endpoint.</summary>
+        public string Endpoint { get; set; }
+
+        /// <summary>
+        /// Gets or sets client keys shared as part of subscription.
+        /// </summary>
+        public IDictionary<string, string> Keys { get; set; }
+    }
+    
+    class GetSubscriptionResult
+    {
+        public bool notificationsBlocked { get; set; }
+        public PushSubscription subscription { get; set; }
+        public bool serverSubscription { get; set; }
+        public bool serviceWorkerSupported { get; set; }
+        public bool pushApiSupported { get; set; }
+        public string error { get; set; }
+    }
+}
+
